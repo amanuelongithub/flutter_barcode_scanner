@@ -227,13 +227,14 @@ public class FlutterBarcodeScannerPlugin implements MethodCallHandler, PluginReg
         barcodeStream = null;
     }
 
-    public void onBarcodeScanReceiver(final Barcode barcode) {
+    public void onBarcodeScanReceived(final Barcode barcode) {
         try {
-            if (barcode != null && !barcode.displayValue.isEmpty()) {
+            if (barcode != null && !barcode.displayValue.isEmpty() && 
+                activity != null && barcodeStream != null) {
                 activity.runOnUiThread(() -> barcodeStream.success(barcode.rawValue));
             }
         } catch (Exception e) {
-            Log.e(TAG, "onBarcodeScanReceiver: " + e.getLocalizedMessage());
+            Log.e(TAG, "onBarcodeScanReceived: " + e.getLocalizedMessage());
         }
     }
 
