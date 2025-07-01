@@ -42,7 +42,7 @@ public class FlutterBarcodeScannerPlugin implements MethodCallHandler, PluginReg
     public static String lineColor = "";
     public static boolean isShowFlashIcon = false;
     public static boolean isContinuousScan = false;
-    static EventChannel.EventSink barcodeStream;
+    private EventChannel.EventSink barcodeStream;
     private EventChannel eventChannel;
 
     private MethodChannel channel;
@@ -52,19 +52,28 @@ public class FlutterBarcodeScannerPlugin implements MethodCallHandler, PluginReg
     private Lifecycle lifecycle;
     private LifeCycleObserver observer;
 
+    private static FlutterBarcodeScannerPlugin instance;
+
+    public static FlutterBarcodeScannerPlugin getInstance() {
+        return instance;
+    }
+
     @Override
     public void onAttachedToEngine(@NonNull FlutterPluginBinding binding) {
         pluginBinding = binding;
+        instance = this;
     }
 
     @Override
     public void onDetachedFromEngine(@NonNull FlutterPluginBinding binding) {
         pluginBinding = null;
+        instance = null;
     }
 
     @Override
     public void onAttachedToActivity(@NonNull ActivityPluginBinding binding) {
         activityBinding = binding;
+        this.activity = (FlutterActivity) binding.getActivity();
         setupPlugin(
                 pluginBinding.getBinaryMessenger(),
                 (Application) pluginBinding.getApplicationContext(),
@@ -218,7 +227,7 @@ public class FlutterBarcodeScannerPlugin implements MethodCallHandler, PluginReg
         barcodeStream = null;
     }
 
-    public static void onBarcodeScanReceiver(final Barcode barcode) {
+    public void onBarcodeScanReceiver(final Barcode barcode) {
         try {
             if (barcode != null && !barcode.displayValue.isEmpty()) {
                 activity.runOnUiThread(() -> barcodeStream.success(barcode.rawValue));
